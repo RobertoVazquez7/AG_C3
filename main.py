@@ -1,88 +1,237 @@
 from tkinter import *
 import matplotlib.pyplot as plt
 import pandas as pd
+from datos import *
+import random as random
+from datetime import datetime, timedelta
+#from random import *
 
-def extraer_datos_tk(municipio,medicamento):
-    print('-> Extraer datos')
-    # poblacion_inicial = Entry_pob_inicial.get()
-    # generaciones = Entry_cant_generaciones.get()
-    # prob_cruza = Entry_prob_cruza.get()
-    # prob_mutIndividuo = Entry_prob_mutIndividuo.get()
-    # prob_mutGen = Entry_prob_mutGen.get()
-    # precision = Entry_precision.get()
-    minimo = Entry_minimo.get()
-    maximo = Entry_maximo.get()
-    paquete = Entry_paquete.get()
-    origen = Entry_origen.get()
-    destino = Entry_destino.get()
+poblacion_inicial = 10
+poblacion_maxima = 100
+generaciones = 20
+prob_cruza = 0.60 # 0.60
+prob_mutacion_individuo = 0.15 # 0.25
+prob_mutacion_gen = 0.10 # 0.50 
+# precision = 1
+# minimo = 10
+# maximo = 20
+poblacion = []
+datos = []
+municipios = ['Acala','Altamirano','Amatenango','Bochil','Cintalapa',
+            'Huixtla','Ixtapa','Oxchuc','Suchiapa','Reforma',
+            'Montecristo','Parral','Teopisca','Tapachula','Arriaga',
+            'Simojovel','Ocosingo','Juarez','Palenque','Villaflores']
+seccionA = ['Palenque','Altamirano','Reforma','Simojovel']
+seccionB = ['Bochil','Huixtla','Amatenango','Juarez','Arriaga']
+seccionC = ['Ocosingo','Cintalapa','Parral','Ixtapa','Montecristo']
+seccionD = ['Acala', 'Oxchuc', 'Teopisca', 'Tapachula']
+
+def extraer_datos_tk():
+    medicamento = str(Entry_medicamento.get())
+    origen = str(Entry_origen.get())
+    destino = str(Entry_destino.get())
     fecha_entrega = Entry_fecha_maxima.get()
     fecha_salida = Entry_fecha_salida.get()
     hora_salida = Entry_hora_salida.get()
-    print(municipio)
-    print(medicamento)
+    fecha_hora = datetime.strptime(fecha_salida + ' ' + hora_salida, '%Y-%m-%d %H:%M:%S')
+    print('> Origen:', origen+' | Destino:',destino+' | Medicamento:',medicamento+' | FechaMax:',fecha_entrega+' | FechaSalida:',fecha_salida+' | HoraSalida:',hora_salida)
+    algoritmo_genetico(origen,destino,fecha_hora)
 
-def extraer_datos_CSV():
-    print('Datos de CSV: ')
-    filename = 'Datos.csv'
-    data = pd.read_csv(filename, header=0)
-    #print(data.shape)
-    #print(data.head(10)) # cantidad de datos a extraer del CSV
-    municipio = data['Municipio'].to_numpy()
-    medicamento = data['Medicamento'].to_numpy()
-    extraer_datos_tk(municipio,medicamento)
+def algoritmo_genetico(origen,destino,fecha_hora):
+    print('==> Generación de individuos')
+    for _ in range(generaciones):
+        generar_individuos(origen,destino)
+    parejas = seleccion()
+    cruzas = cruza(parejas)
+    resultado = mutacion(cruzas,origen,destino)
+    poda(resultado)
+
+def generar_individuos(origen,destino):
+    ruta = []
+    ruta.append(origen)
+    while ruta[-1] != destino:
+        municipio_aleatorio = random.choice(municipios)
+        if municipio_aleatorio != origen:
+            pos = ruta[-1]
+            mun_random = random.choice(rutas[pos]['ruta'])
+            if mun_random != origen and mun_random != ruta[-1]:
+                ruta.append(mun_random)
+    poblacion.append(ruta)
+    print('RUTAS:', ruta)
+
+def seleccion():
+    parejas = []
+    print('--------------------------------------------------------------------------------------------------------------------------')
+    print('==> Seleccion')
+    j = 1
+    for i in range(len(poblacion)):
+        parejas_aux = []
+        if j < len(poblacion):
+            parejas_aux.append(poblacion[i])
+            parejas_aux.append(poblacion[j])
+            parejas.append(parejas_aux)
+            j += 1
+        if j > len(poblacion):
+            posicion_aleatoria = random.randint(0, len(poblacion))
+            parejas_aux.append(poblacion[i])
+            parejas_aux.append(poblacion[posicion_aleatoria])
+            parejas.append(parejas_aux)
+    for j in range(len(parejas)):
+        print('> Parejas:',parejas[j])
+    return parejas
+
+def cruza(selecciones):
+    cruzas = []
+    posiciones = []
+    print('--------------------------------------------------------------------------------------------------------------------------')
+    print('==> Cruza')
+    for i in range(len(selecciones)):
+        probabilidad_aleatoria = random.uniform(0,1)
+        if probabilidad_aleatoria <= prob_cruza:
+            print('+ SI se puede cruzar:', selecciones[i])
+            pareja = selecciones[i] # [[pareja1,pareja2],[pareja1,pareja2],[pareja1,pareja2]...]
+            individuo1 = pareja[0] # [pareja1]
+            print(' Individuo 1:', individuo1)
+            individuo2 = pareja[1] # [pareja2]
+            print(' Individuo 2:', individuo2)
+            parte1 = individuo1[:3]
+            print(' > Parte 1:', parte1)
+            parte2 = individuo1[3:]
+            print(' > Parte 2:', parte2)
+            parte3 = individuo2[:3]
+            print(' > Parte 3:', parte3)
+            parte4 = individuo2[3:]
+            print(' > Parte 4:', parte4)
+            cruzas.append(parte1+parte4)
+            print('Resultado 1:', parte1+parte4)
+            cruzas.append(parte3+parte2)
+            print('Resultado 2:', parte3+parte2)
+            print(' - - - - - - - - - - - - ')
+        else:
+            print('- NO se puede Cruzar:',selecciones[i])
+            pareja = selecciones[i]
+            individuo1 = pareja[0]
+            individuo2 = pareja[1]
+            cruzas.append(individuo1)
+            cruzas.append(individuo2)
+            print(' - - - - - - - - - - - - ')
+    print('=> Individuos despues de CRUZA')
+    for j in range(len(cruzas)):
+        print(cruzas[j])
+        bandera = evaluar_rutas(cruzas[j])
+        if bandera == -1:
+            posiciones.append(cruzas[j])
+    for k in posiciones:
+        cruzas.remove(k)
+    return cruzas
+
+def evaluar_rutas(individuo):
+    bandera = 1
+    contador = 0
+    posicion = 1
+    for i in individuo:
+        for j in rutas[i]['ruta']:
+            if j == individuo[posicion]:
+                if posicion < 5:
+                    posicion += 1
+                    contador += 1
+    if contador == 4:
+        return bandera
+    else:
+        bandera = -1
+        return bandera 
+
+def mutacion(cruzas,origen,destino):
+    print('--------------------------------------------------------------------------------------------------------------------------')
+    print('==> Mutacion')
+    for individuo in cruzas:
+        pos = 0
+        probabilidad_aleatoria = random.uniform(1,0)
+        if probabilidad_aleatoria <= prob_mutacion_individuo:
+            print('Individuo puede mutar', individuo)
+            for gen in individuo:
+                probabilidad_aleatoria = random.uniform(0,1)
+                if probabilidad_aleatoria <= prob_mutacion_gen:
+                    if gen != origen and gen != destino:
+                        print('Gen puede mutar', gen)
+                        if gen in seccionA:
+                            print('Seccion A')
+                            dato = random.choice(seccionA)
+                            individuo[pos] = dato
+                            print(dato)
+                            print(individuo)
+                        if gen in seccionB:
+                            print('Seccion B')
+                            dato = random.choice(seccionB)
+                            individuo[pos] = dato
+                            print(dato)
+                            print(individuo)
+                        if gen in seccionC:
+                            print('Seccion C')
+                            dato = random.choice(seccionC)
+                            individuo[pos] = dato
+                            print(dato)
+                            print(individuo)
+                        if gen in seccionD:
+                            print('Seccion D')
+                            dato = random.choice(seccionD)
+                            individuo[pos] = dato
+                            print(dato)
+                            print(individuo)
+                pos += 1
+    return cruzas
+
+def poda(resultado):
+    print('--------------------------------------------------------------------------------------------------------------------------')
+    print('==> Poda')
+    #calcular_aptitud(resultado)
+
+def calcular_aptitud(resultado):
+    print('Calcular aptitud')
+    for individuo in resultado:
+        for gen in individuo:
+            if gen in rutas:
+                hora = rutas[gen]['hora']
+                hora += hora
+    print('HORAS RECORRIDAS:', hora)
+
+# def extraer_datos_CSV():
+#     print('Datos de CSV: ')
+#     filename = 'Datos.csv'
+#     data = pd.read_csv(filename, header=0)
+#     #print(data.shape)
+#     #print(data.head(10)) # cantidad de datos a extraer del CSV
+#     municipio = data['Municipio'].to_numpy()
+#     medicamento = data['Medicamento'].to_numpy()
+#     extraer_datos_tk(municipio,medicamento)
 
 ventana = Tk()
 ventana.title('IA.AG_C3')
 ventana.geometry('500x350')
 
 label = Label(ventana, text='DISTRIBUCIÓN DE MULTISITIOS').place(x=180,y=5)
-# label = Label(ventana, text='Población inicial:').place(x=40,y=40)
-# Entry_pob_inicial = Entry(ventana)
-# Entry_pob_inicial.place(x=40, y=60)
 
-# label = Label(ventana, text='Generaciones:').place(x=40,y=80)
-# Entry_cant_generaciones = Entry(ventana)
-# Entry_cant_generaciones.place(x=40, y=100)
+label = Label(ventana, text='Medicamento:').place(x=20,y=100)
+Entry_medicamento = Entry(ventana)
+Entry_medicamento.place(x=20,y=120)
 
-# label = Label(ventana, text='Prob. de Cruza:').place(x=40,y=140)
-# Entry_prob_cruza = Entry(ventana)
-# Entry_prob_cruza.place(x=40, y=160)
-# label = Label(ventana, text='Prob. Mutación Individuo:').place(x=40,y=180)
-# Entry_prob_mutIndividuo = Entry(ventana)
-# Entry_prob_mutIndividuo.place(x=40, y=200)
-# label = Label(ventana, text='Prob. Mutación Gen:').place(x=40,y=220)
-# Entry_prob_mutGen = Entry(ventana)
-# Entry_prob_mutGen.place(x=40,y=240)
-# label = Label(ventana, text='Precisión:').place(x=40,y=260)
-# Entry_precision = Entry(ventana)
-# Entry_precision.place(x=40,y=280)
-
-label = Label(ventana, text='Minimo:').place(x=40,y=80)
-Entry_minimo = Entry(ventana)
-Entry_minimo.place(x=40,y=100)
-label = Label(ventana, text='Maximo:').place(x=40,y=120)
-Entry_maximo = Entry(ventana)
-Entry_maximo.place(x=40,y=140)
-
-label = Label(ventana, text='Paquete:').place(x=300,y=40)
-Entry_paquete = Entry(ventana)
-Entry_paquete.place(x=300,y=60)
-label = Label(ventana, text='Origen:').place(x=300,y=80)
+label = Label(ventana, text='Origen:').place(x=170,y=80)
 Entry_origen = Entry(ventana)
-Entry_origen.place(x=300,y=100)
-label = Label(ventana, text='Destino:').place(x=300,y=120)
+Entry_origen.place(x=170,y=100)
+label = Label(ventana, text='Destino:').place(x=170,y=130)
 Entry_destino = Entry(ventana)
-Entry_destino.place(x=300,y=140)
-label = Label(ventana, text='Fecha maxima entrega:').place(x=300,y=160)
-Entry_fecha_maxima = Entry(ventana)
-Entry_fecha_maxima.place(x=300,y=180)
-label = Label(ventana, text='Fecha de Salida:').place(x=300,y=200)
-Entry_fecha_salida = Entry(ventana)
-Entry_fecha_salida.place(x=300,y=220)
-label = Label(ventana, text='Hora de salida:').place(x=300,y=240)
-Entry_hora_salida = Entry(ventana)
-Entry_hora_salida.place(x=300,y=260)
+Entry_destino.place(x=170,y=150)
 
-button = Button(ventana, text='Aceptar', command=extraer_datos_CSV).place(x=230,y=300)
+label = Label(ventana, text='Fecha maxima entrega (YYYY-MM-DD):').place(x=330,y=60)
+Entry_fecha_maxima = Entry(ventana)
+Entry_fecha_maxima.place(x=330,y=80)
+label = Label(ventana, text='Fecha de Salida (YYYY-MM-DD):').place(x=330,y=120)
+Entry_fecha_salida = Entry(ventana)
+Entry_fecha_salida.place(x=330,y=140)
+label = Label(ventana, text='Hora de salida (HH:MM:SS):').place(x=330,y=180)
+Entry_hora_salida = Entry(ventana)
+Entry_hora_salida.place(x=330,y=200)
+
+button = Button(ventana, text='Aceptar', command=extraer_datos_tk).place(x=230,y=290)
 
 ventana.mainloop()
