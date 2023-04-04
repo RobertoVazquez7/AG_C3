@@ -21,6 +21,10 @@ municipios = ['Acala','Altamirano','Amatenango','Bochil','Cintalapa',
             'Huixtla','Ixtapa','Oxchuc','Suchiapa','Reforma',
             'Montecristo','Parral','Teopisca','Tapachula','Arriaga',
             'Simojovel','Ocosingo','Juarez','Palenque','Villaflores']
+horas = [acala_salida,altamirano_salida,amatenango_salida,bochil_salida,cintalapa_salida,
+         huixtla_salida,ixtapa_salida,oxchuc_salida,suchiapa_salida,reforma_salida,
+         montecristo_salida,parral_salida,teopisca_salida,tapachula_salida,arriaga_salida,
+         simojovel_salida,ocosingo_salida,juarez_salida,palenque_salida,villaflores_salida]
 seccionA = ['Palenque','Altamirano','Reforma','Simojovel']
 seccionB = ['Bochil','Huixtla','Amatenango','Juarez','Arriaga']
 seccionC = ['Ocosingo','Cintalapa','Parral','Ixtapa','Montecristo']
@@ -44,7 +48,7 @@ def algoritmo_genetico(origen,destino,fecha_hora):
     parejas = seleccion()
     cruzas = cruza(parejas)
     resultado = mutacion(cruzas,origen,destino)
-    poda(resultado)
+    poda(resultado, fecha_hora)
 
 def generar_individuos(origen,destino):
     ruta = []
@@ -181,19 +185,21 @@ def mutacion(cruzas,origen,destino):
                 pos += 1
     return cruzas
 
-def poda(resultado):
+def poda(resultado,fecha_hora):
     print('--------------------------------------------------------------------------------------------------------------------------')
     print('==> Poda')
-    #calcular_aptitud(resultado)
+    calcular_aptitud(resultado, fecha_hora)
 
-def calcular_aptitud(resultado):
+def calcular_aptitud(resultado, fecha_hora):
     print('Calcular aptitud')
     for individuo in resultado:
         for gen in individuo:
-            if gen in rutas:
-                hora = rutas[gen]['hora']
-                hora += hora
-    print('HORAS RECORRIDAS:', hora)
+            for i in range(len(municipios)):
+                gen == municipios[i]
+                tiempo = horas[i]
+                print(tiempo)
+                new_tiempo = fecha_hora + tiempo
+    print('TIEMPO: ', new_tiempo)
 
 # def extraer_datos_CSV():
 #     print('Datos de CSV: ')

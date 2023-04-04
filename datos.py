@@ -25,7 +25,7 @@ teopisca_salida = timedelta(days=0, hours=12, minutes=3, seconds=13)
 tapachula_salida = timedelta(days=0, hours=12, minutes=3, seconds=11)
 
 suchiapa_salida = timedelta(days=0, hours=12, minutes=3, seconds=20)
-#villaflores_salida = timedelta(days=0, hours=12, minutes=3, seconds=11)
+villaflores_salida = timedelta(days=0, hours=0, minutes=0, seconds=0)
 
 # rutas = {
 #     'Acala': {'ruta':['Altamirano', 'Oxchuc']},
@@ -119,25 +119,25 @@ rutas = {
 #     'Villaflores':{'ruta':['']},
 # }
 
-horas = {
-    'Acala': {'hora':['']},
-    'Altamirano':{'hora':['']},
-    'Amatenango':{'hora':['']},
-    'Bochil':{'hora':['']},
-    'Cintalapa':{'hora':['']},
-    'Huixtla':{'hora':['']},
-    'Ixtapa':{'hora':['']},
-    'Oxchuc':{'hora':['']},
-    'Suchiapa':{'hora':['']},
-    'Reforma':{'hora':['']},
-    'Montecristo':{'hora':['']},
-    'Parral':{'hora':['']},
-    'Teopisca':{'hora':['']},
-    'Tapachula':{'hora':['']},
-    'Arriaga':{'hora':['']},
-    'Simojovel':{'hora':['']},
-    'Ocosingo':{'hora':['']},
-    'Juarez':{'hora':['']},
-    'Palenque':{'hora':['']},
-    'Villaflores':{'hora':['']},
-}
+# horas = {
+#     'Acala': {'hora':['']},
+#     'Altamirano':{'hora':['']},
+#     'Amatenango':{'hora':['']},
+#     'Bochil':{'hora':['']},
+#     'Cintalapa':{'hora':['']},
+#     'Huixtla':{'hora':['']},
+#     'Ixtapa':{'hora':['']},
+#     'Oxchuc':{'hora':['']},
+#     'Suchiapa':{'hora':['']},
+#     'Reforma':{'hora':['']},
+#     'Montecristo':{'hora':['']},
+#     'Parral':{'hora':['']},
+#     'Teopisca':{'hora':['']},
+#     'Tapachula':{'hora':['']},
+#     'Arriaga':{'hora':['']},
+#     'Simojovel':{'hora':['']},
+#     'Ocosingo':{'hora':['']},
+#     'Juarez':{'hora':['']},
+#     'Palenque':{'hora':['']},
+#     'Villaflores':{'hora':['']},
+# }
