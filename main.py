@@ -6,8 +6,11 @@ import random as random
 from datetime import datetime, timedelta
 #from random import *
 
+origen = 'Suchiapa'
+destino = 'Villaflores'
+
 poblacion_inicial = 10
-poblacion_maxima = 100
+poblacion_maxima = 10
 generaciones = 20
 prob_cruza = 0.60 # 0.60
 prob_mutacion_individuo = 0.15 # 0.25
@@ -21,10 +24,7 @@ municipios = ['Acala','Altamirano','Amatenango','Bochil','Cintalapa',
             'Huixtla','Ixtapa','Oxchuc','Suchiapa','Reforma',
             'Montecristo','Parral','Teopisca','Tapachula','Arriaga',
             'Simojovel','Ocosingo','Juarez','Palenque','Villaflores']
-horas = [acala_salida,altamirano_salida,amatenango_salida,bochil_salida,cintalapa_salida,
-         huixtla_salida,ixtapa_salida,oxchuc_salida,suchiapa_salida,reforma_salida,
-         montecristo_salida,parral_salida,teopisca_salida,tapachula_salida,arriaga_salida,
-         simojovel_salida,ocosingo_salida,juarez_salida,palenque_salida,villaflores_salida]
+
 seccionA = ['Palenque','Altamirano','Reforma','Simojovel']
 seccionB = ['Bochil','Huixtla','Amatenango','Juarez','Arriaga']
 seccionC = ['Ocosingo','Cintalapa','Parral','Ixtapa','Montecristo']
@@ -32,23 +32,23 @@ seccionD = ['Acala', 'Oxchuc', 'Teopisca', 'Tapachula']
 
 def extraer_datos_tk():
     medicamento = str(Entry_medicamento.get())
-    origen = str(Entry_origen.get())
-    destino = str(Entry_destino.get())
+    # origen = str(Entry_origen.get())
+    # destino = str(Entry_destino.get())
     fecha_entrega = Entry_fecha_maxima.get()
     fecha_salida = Entry_fecha_salida.get()
     hora_salida = Entry_hora_salida.get()
-    fecha_hora = datetime.strptime(fecha_salida + ' ' + hora_salida, '%Y-%m-%d %H:%M:%S')
+    #fecha_hora = datetime.strptime(fecha_salida + ' ' + hora_salida, '%Y-%m-%d %H:%M:%S')
     print('> Origen:', origen+' | Destino:',destino+' | Medicamento:',medicamento+' | FechaMax:',fecha_entrega+' | FechaSalida:',fecha_salida+' | HoraSalida:',hora_salida)
-    algoritmo_genetico(origen,destino,fecha_hora)
+    algoritmo_genetico(origen,destino)
 
-def algoritmo_genetico(origen,destino,fecha_hora):
+def algoritmo_genetico(origen,destino):
     print('==> Generación de individuos')
     for _ in range(generaciones):
         generar_individuos(origen,destino)
     parejas = seleccion()
     cruzas = cruza(parejas)
-    resultado = mutacion(cruzas,origen,destino)
-    poda(resultado, fecha_hora)
+    mutaciones = mutacion(cruzas,origen,destino)
+    poda(mutaciones)
 
 def generar_individuos(origen,destino):
     ruta = []
@@ -74,14 +74,17 @@ def seleccion():
             parejas_aux.append(poblacion[i])
             parejas_aux.append(poblacion[j])
             parejas.append(parejas_aux)
+            #poblacion.append(parejas_aux)
             j += 1
         if j > len(poblacion):
             posicion_aleatoria = random.randint(0, len(poblacion))
             parejas_aux.append(poblacion[i])
             parejas_aux.append(poblacion[posicion_aleatoria])
             parejas.append(parejas_aux)
+            #poblacion.append(parejas_aux)
     for j in range(len(parejas)):
         print('> Parejas:',parejas[j])
+    poblacion.clear()
     return parejas
 
 def cruza(selecciones):
@@ -149,6 +152,7 @@ def mutacion(cruzas,origen,destino):
     print('--------------------------------------------------------------------------------------------------------------------------')
     print('==> Mutacion')
     for individuo in cruzas:
+        print('- - - - - - - - - - - -')
         pos = 0
         probabilidad_aleatoria = random.uniform(1,0)
         if probabilidad_aleatoria <= prob_mutacion_individuo:
@@ -157,49 +161,41 @@ def mutacion(cruzas,origen,destino):
                 probabilidad_aleatoria = random.uniform(0,1)
                 if probabilidad_aleatoria <= prob_mutacion_gen:
                     if gen != origen and gen != destino:
-                        print('Gen puede mutar', gen)
+                        print(' > Gen puede mutar', gen)
                         if gen in seccionA:
-                            print('Seccion A')
+                            #print('Seccion A')
                             dato = random.choice(seccionA)
                             individuo[pos] = dato
-                            print(dato)
-                            print(individuo)
                         if gen in seccionB:
-                            print('Seccion B')
+                            #print('Seccion B')
                             dato = random.choice(seccionB)
                             individuo[pos] = dato
-                            print(dato)
-                            print(individuo)
                         if gen in seccionC:
-                            print('Seccion C')
+                            #print('Seccion C')
                             dato = random.choice(seccionC)
                             individuo[pos] = dato
-                            print(dato)
-                            print(individuo)
                         if gen in seccionD:
-                            print('Seccion D')
+                            #print('Seccion D')
                             dato = random.choice(seccionD)
                             individuo[pos] = dato
-                            print(dato)
-                            print(individuo)
+                else:
+                    print(' > Gen no puede mutar',gen)
                 pos += 1
+        else:
+            print('Individuo no puede mutar', individuo)
     return cruzas
 
-def poda(resultado,fecha_hora):
+def poda(mutaciones):
     print('--------------------------------------------------------------------------------------------------------------------------')
     print('==> Poda')
-    calcular_aptitud(resultado, fecha_hora)
-
-def calcular_aptitud(resultado, fecha_hora):
-    print('Calcular aptitud')
-    for individuo in resultado:
-        for gen in individuo:
-            for i in range(len(municipios)):
-                gen == municipios[i]
-                tiempo = horas[i]
-                print(tiempo)
-                new_tiempo = fecha_hora + tiempo
-    print('TIEMPO: ', new_tiempo)
+    print(len(mutaciones))
+    print(poblacion_maxima)
+    if len(mutaciones) > poblacion_maxima:
+        while len(mutaciones) != poblacion_maxima:
+            posicion_aleatoria = random.randint(0,len(mutaciones)-1)
+            del mutaciones[posicion_aleatoria]
+    for i in mutaciones:
+        poblacion.append(i)
 
 # def extraer_datos_CSV():
 #     print('Datos de CSV: ')
@@ -221,12 +217,12 @@ label = Label(ventana, text='Medicamento:').place(x=20,y=100)
 Entry_medicamento = Entry(ventana)
 Entry_medicamento.place(x=20,y=120)
 
-label = Label(ventana, text='Origen:').place(x=170,y=80)
-Entry_origen = Entry(ventana)
-Entry_origen.place(x=170,y=100)
-label = Label(ventana, text='Destino:').place(x=170,y=130)
-Entry_destino = Entry(ventana)
-Entry_destino.place(x=170,y=150)
+# label = Label(ventana, text='Origen:').place(x=170,y=80)
+# Entry_origen = Entry(ventana)
+# Entry_origen.place(x=170,y=100)
+# label = Label(ventana, text='Destino:').place(x=170,y=130)
+# Entry_destino = Entry(ventana)
+# Entry_destino.place(x=170,y=150)
 
 label = Label(ventana, text='Fecha maxima entrega (YYYY-MM-DD):').place(x=330,y=60)
 Entry_fecha_maxima = Entry(ventana)
