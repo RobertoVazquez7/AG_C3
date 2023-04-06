@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 origen = 'Suchiapa'
 destino = 'Villaflores'
+hora_llegada = '20:00:00'
 
 poblacion_inicial = 10
 poblacion_maxima = 10
@@ -37,18 +38,19 @@ def extraer_datos_tk():
     fecha_entrega = Entry_fecha_maxima.get()
     fecha_salida = Entry_fecha_salida.get()
     hora_salida = Entry_hora_salida.get()
-    #fecha_hora = datetime.strptime(fecha_salida + ' ' + hora_salida, '%Y-%m-%d %H:%M:%S')
+    fecha_hora_salida = datetime.strptime(fecha_salida + ' ' + hora_salida, '%Y-%m-%d %H:%M:%S')
+    fecha_hora_llegada = datetime.strptime(fecha_entrega + ' ' + hora_llegada, '%Y-%m-%d %H:%M:%S')
     print('> Origen:', origen+' | Destino:',destino+' | Medicamento:',medicamento+' | FechaMax:',fecha_entrega+' | FechaSalida:',fecha_salida+' | HoraSalida:',hora_salida)
-    algoritmo_genetico(origen,destino)
+    algoritmo_genetico(origen,destino,fecha_hora_salida,fecha_hora_llegada)
 
-def algoritmo_genetico(origen,destino):
+def algoritmo_genetico(origen,destino,fecha_hora_salida,fecha_hora_llegada):
     print('==> Generación de individuos')
     for _ in range(generaciones):
         generar_individuos(origen,destino)
     parejas = seleccion()
     cruzas = cruza(parejas)
     mutaciones = mutacion(cruzas,origen,destino)
-    poda(mutaciones)
+    poda(mutaciones,fecha_hora_salida,fecha_hora_llegada)
 
 def generar_individuos(origen,destino):
     ruta = []
@@ -185,17 +187,50 @@ def mutacion(cruzas,origen,destino):
             print('Individuo no puede mutar', individuo)
     return cruzas
 
-def poda(mutaciones):
+def poda(mutaciones,fecha_hora_salida,fecha_hora_llegada):
     print('--------------------------------------------------------------------------------------------------------------------------')
     print('==> Poda')
-    print(len(mutaciones))
-    print(poblacion_maxima)
-    if len(mutaciones) > poblacion_maxima:
-        while len(mutaciones) != poblacion_maxima:
-            posicion_aleatoria = random.randint(0,len(mutaciones)-1)
-            del mutaciones[posicion_aleatoria]
     for i in mutaciones:
         poblacion.append(i)
+    mejores, peores = calcular_aptitud(fecha_hora_salida,fecha_hora_llegada)
+    # print(len(mutaciones))
+    # print(poblacion_maxima)
+    # if len(mutaciones) > poblacion_maxima:
+    #     while len(mutaciones) != poblacion_maxima:
+    #         posicion_aleatoria = random.randint(0,len(mutaciones)-1)
+    #         del mutaciones[posicion_aleatoria]
+    # for i in mutaciones:
+    #     poblacion.append(i)
+
+def calcular_aptitud(fecha_hora,fecha_hora_llegada):
+    mejores_individuos = []
+    peores_individuos = []
+    print('Calcular aptitud')
+    print(' Fecha | hora (Salida)')
+    print(fecha_hora)
+    for i in poblacion:
+        for _ in range(len(i)):
+            hora_aleatoria = random.uniform(0,24)
+            minutos_aleatorios = random.uniform(0,60)
+            segundos_aleatorios = random.uniform(0,60)
+            tiempo_recorrido_horas = timedelta(days=0, hours=hora_aleatoria, minutes=minutos_aleatorios, seconds=segundos_aleatorios)
+            tiempo_recorrido_minutos = timedelta(days=0, hours=0, minutes=minutos_aleatorios, seconds=segundos_aleatorios)
+            tiempo_recorrido_segundos = timedelta(days=0, hours=0, minutes=0, seconds=segundos_aleatorios)
+            #print(tiempo_recorrido)
+            tiempo = fecha_hora + tiempo_recorrido_horas + tiempo_recorrido_minutos + tiempo_recorrido_segundos
+        if tiempo <= fecha_hora_llegada:
+            print('Si pasa')
+            print(' -> Ruta:',i)
+            print('  Salió el:',fecha_hora)
+            print('  Llegó el:',tiempo)
+            mejores_individuos.append(i)
+        else:
+            print('No pasa')
+            print(' -> Ruta:',i)
+            print('  Salió el:',fecha_hora)
+            print('  Llegó el:',tiempo)
+            peores_individuos.append(i)
+    return mejores_individuos, peores_individuos
 
 # def extraer_datos_CSV():
 #     print('Datos de CSV: ')
