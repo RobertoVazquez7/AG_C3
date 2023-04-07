@@ -12,7 +12,7 @@ hora_llegada = '20:00:00'
 
 poblacion_inicial = 10
 poblacion_maxima = 10
-generaciones = 20
+generaciones = 5
 prob_cruza = 0.60 # 0.60
 prob_mutacion_individuo = 0.15 # 0.25
 prob_mutacion_gen = 0.10 # 0.50 
@@ -45,12 +45,13 @@ def extraer_datos_tk():
 
 def algoritmo_genetico(origen,destino,fecha_hora_salida,fecha_hora_llegada):
     print('==> Generación de individuos')
-    for _ in range(generaciones):
+    for _ in range(poblacion_inicial):
         generar_individuos(origen,destino)
-    parejas = seleccion()
-    cruzas = cruza(parejas)
-    mutaciones = mutacion(cruzas,origen,destino)
-    poda(mutaciones,fecha_hora_salida,fecha_hora_llegada)
+    for _ in range(generaciones):
+        parejas = seleccion()
+        cruzas = cruza(parejas)
+        mutaciones = mutacion(cruzas,origen,destino)
+        poda(mutaciones,fecha_hora_salida,fecha_hora_llegada)
 
 def generar_individuos(origen,destino):
     ruta = []
@@ -192,7 +193,12 @@ def poda(mutaciones,fecha_hora_salida,fecha_hora_llegada):
     print('==> Poda')
     for i in mutaciones:
         poblacion.append(i)
-    mejores, peores = calcular_aptitud(fecha_hora_salida,fecha_hora_llegada)
+    mejores_individuos = calcular_aptitud(fecha_hora_salida,fecha_hora_llegada)
+    if len(mejores_individuos) > poblacion_maxima:
+        while len(mejores_individuos) != poblacion_maxima:
+            del mejores_individuos[-1]
+    for i in mejores_individuos:
+        print(i)
     # print(len(mutaciones))
     # print(poblacion_maxima)
     # if len(mutaciones) > poblacion_maxima:
@@ -202,35 +208,52 @@ def poda(mutaciones,fecha_hora_salida,fecha_hora_llegada):
     # for i in mutaciones:
     #     poblacion.append(i)
 
-def calcular_aptitud(fecha_hora,fecha_hora_llegada):
+def calcular_aptitud(fecha_hora_salida,fecha_hora_llegada):
     mejores_individuos = []
-    peores_individuos = []
+    lista_aux = []
+    posicion = 0
     print('Calcular aptitud')
-    print(' Fecha | hora (Salida)')
-    print(fecha_hora)
     for i in poblacion:
         for _ in range(len(i)):
             hora_aleatoria = random.uniform(0,24)
             minutos_aleatorios = random.uniform(0,60)
-            segundos_aleatorios = random.uniform(0,60)
+            segundos_aleatorios = int(random.uniform(0,60))
+            hora_aleatoria2 = random.uniform(0,5)
+            minutos_aleatorios2 = random.uniform(0,60)
+            segundos_aleatorios2 = int(random.uniform(0,60))
             tiempo_recorrido_horas = timedelta(days=0, hours=hora_aleatoria, minutes=minutos_aleatorios, seconds=segundos_aleatorios)
             tiempo_recorrido_minutos = timedelta(days=0, hours=0, minutes=minutos_aleatorios, seconds=segundos_aleatorios)
             tiempo_recorrido_segundos = timedelta(days=0, hours=0, minutes=0, seconds=segundos_aleatorios)
-            #print(tiempo_recorrido)
-            tiempo = fecha_hora + tiempo_recorrido_horas + tiempo_recorrido_minutos + tiempo_recorrido_segundos
-        if tiempo <= fecha_hora_llegada:
-            print('Si pasa')
+            tiempo_espera = timedelta(days=0, hours=hora_aleatoria2, minutes=minutos_aleatorios2, seconds=segundos_aleatorios2)
+            tiempo_recorrido_total = fecha_hora_salida + tiempo_recorrido_horas + tiempo_recorrido_minutos + tiempo_recorrido_segundos
+        if tiempo_recorrido_total <= fecha_hora_llegada:
+            lista_aux = []
+            print('--------------------------------------------')
+            print('El paquete llegó a tiempo:')
             print(' -> Ruta:',i)
-            print('  Salió el:',fecha_hora)
-            print('  Llegó el:',tiempo)
-            mejores_individuos.append(i)
+            print(' | Tiempo de espera: ', tiempo_espera,' | ')
+            print('  Salió el:',fecha_hora_salida)
+            print('  Llegó el:',tiempo_recorrido_total)
+            print('Fecha y hora maxima de llegada:',fecha_hora_llegada)
+               # se guarda en una lista: la ruta, tiempo de espera, fecha y hora de salida, fecha y hora de llegada, fecha maxima de llegada
+            lista_aux.append(i)
+            lista_aux.append(str(tiempo_espera))
+            lista_aux.append(str(fecha_hora_salida))
+            lista_aux.append(str(tiempo_recorrido_total))
+            lista_aux.append(str(fecha_hora_llegada))
+            mejores_individuos.append(lista_aux)
         else:
-            print('No pasa')
+            print('--------------------------------------------')
+            print('El paquete no llegó a tiempo: ')
             print(' -> Ruta:',i)
-            print('  Salió el:',fecha_hora)
-            print('  Llegó el:',tiempo)
-            peores_individuos.append(i)
-    return mejores_individuos, peores_individuos
+            print(' | Tiempo de espera: ', tiempo_espera,' | ')
+            print('  Salió el:',fecha_hora_salida)
+            print('  Llegó el:',tiempo_recorrido_total)
+            print('  Tiempo de espera:', tiempo_espera)
+            print('Fecha Max:',fecha_hora_llegada)
+            poblacion.pop(posicion)
+        posicion += 1
+    return sorted(mejores_individuos, key=lambda mejores: mejores[3])
 
 # def extraer_datos_CSV():
 #     print('Datos de CSV: ')
