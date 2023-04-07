@@ -197,8 +197,10 @@ def poda(mutaciones,fecha_hora_salida,fecha_hora_llegada):
     if len(mejores_individuos) > poblacion_maxima:
         while len(mejores_individuos) != poblacion_maxima:
             del mejores_individuos[-1]
-    for i in mejores_individuos:
-        print(i)
+    print('------------------------------------------------------')
+    mejores = sorted(mejores_individuos, key=lambda mejores : mejores[3])
+    for j in mejores:
+        print(j)
     # print(len(mutaciones))
     # print(poblacion_maxima)
     # if len(mutaciones) > poblacion_maxima:
@@ -253,7 +255,7 @@ def calcular_aptitud(fecha_hora_salida,fecha_hora_llegada):
             print('Fecha Max:',fecha_hora_llegada)
             poblacion.pop(posicion)
         posicion += 1
-    return sorted(mejores_individuos, key=lambda mejores: mejores[3])
+    return mejores_individuos
 
 # def extraer_datos_CSV():
 #     print('Datos de CSV: ')
