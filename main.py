@@ -4,6 +4,8 @@ import pandas as pd
 from datos import *
 import random as random
 from datetime import datetime, timedelta
+from openpyxl import Workbook
+
 #from random import *
 
 origen = 'Suchiapa'
@@ -198,9 +200,32 @@ def poda(mutaciones,fecha_hora_salida,fecha_hora_llegada):
         while len(mejores_individuos) != poblacion_maxima:
             del mejores_individuos[-1]
     print('------------------------------------------------------')
+    workbook = Workbook()
+    sheet = workbook.active
+    row = 1
+    sheet.cell(row=row, column=1, value="Rutas")
+    sheet.cell(row=row, column=2, value="Tiempo de espera")
+    sheet.cell(row=row, column=3, value="Hora de salida")
+    sheet.cell(row=row, column=4, value="Hora de llegada")
+    row += 1
+
     mejores = sorted(mejores_individuos, key=lambda mejores : mejores[3])
     for j in mejores:
         print(j)
+    
+    for j in mejores:
+        sheet.cell(row=row, column=1, value=j[0])
+        sheet.cell(row=row, column=2, value=j[1])
+        sheet.cell(row=row, column=3, value=j[2])
+        sheet.cell(row=row, column=4, value=j[3])
+        row += 1
+
+
+    workbook.save('Mejores resultados.xlsx')
+
+   
+  
+
     # print(len(mutaciones))
     # print(poblacion_maxima)
     # if len(mutaciones) > poblacion_maxima:
@@ -238,11 +263,14 @@ def calcular_aptitud(fecha_hora_salida,fecha_hora_llegada):
             print('  Llegó el:',tiempo_recorrido_total)
             print('Fecha y hora maxima de llegada:',fecha_hora_llegada)
                # se guarda en una lista: la ruta, tiempo de espera, fecha y hora de salida, fecha y hora de llegada, fecha maxima de llegada
-            lista_aux.append(i)
+            #lista_aux.append(i)
+            Ruta_texto = '-'.join(i)
+            lista_aux.append(str(Ruta_texto))
             lista_aux.append(str(tiempo_espera))
             lista_aux.append(str(fecha_hora_salida))
             lista_aux.append(str(tiempo_recorrido_total))
             lista_aux.append(str(fecha_hora_llegada))
+
             mejores_individuos.append(lista_aux)
         else:
             print('--------------------------------------------')
@@ -255,6 +283,7 @@ def calcular_aptitud(fecha_hora_salida,fecha_hora_llegada):
             print('Fecha Max:',fecha_hora_llegada)
             poblacion.pop(posicion)
         posicion += 1
+
     return mejores_individuos
 
 # def extraer_datos_CSV():
@@ -269,7 +298,7 @@ def calcular_aptitud(fecha_hora_salida,fecha_hora_llegada):
 
 ventana = Tk()
 ventana.title('IA.AG_C3')
-ventana.geometry('500x350')
+ventana.geometry('550x350')
 
 label = Label(ventana, text='DISTRIBUCIÓN DE MULTISITIOS').place(x=180,y=5)
 
